@@ -31,7 +31,6 @@ public class RGBHyperMaze : MonoBehaviour {
     private bool[,,,] visited = new bool[2, 2, 2, 2];
     List<int[]> passable = new List<int[]>();
     List<int> passableTranslated = new List<int>();
-    private System.Random rnd = new System.Random();
     private bool[,] rotationLogic = new bool[32, 5];
     private int[] rotations = new int[5];
     private int[] appliedRotations = new int[4];
@@ -115,10 +114,10 @@ public class RGBHyperMaze : MonoBehaviour {
     {
         moduleId = moduleIdCounter++;
 
-        startingVertex = rnd.Next(16); //choose random vertex to start and set it to current location; then choose a goal that is 3 moves away
+        startingVertex = UnityEngine.Random.Range(0, 16); //choose random vertex to start and set it to current location; then choose a goal that is 3 moves away
         currentVertex = startingVertex;
         startingCoords = fDCoords[startingVertex];
-        goalCoords = Vector4.Scale(startingCoords,flipCoord[rnd.Next(4)]);
+        goalCoords = Vector4.Scale(startingCoords,flipCoord[UnityEngine.Random.Range(0, 4)]);
         for(int i = 0; i < 16; i++) { if(fDCoords[i] == goalCoords) { goalVertex = i; } }
 
         display.OnInteract += delegate () { PressDisplay(); return false; };
@@ -137,7 +136,7 @@ public class RGBHyperMaze : MonoBehaviour {
             edgesInitTransform[ID,1] = edgesTf[ID].localEulerAngles;
         }
 
-        float hue = rnd.Next(100);                              //choose a random start color for stage 1 and set all vertices and edges to it
+        float hue = UnityEngine.Random.Range(0, 100);                              //choose a random start color for stage 1 and set all vertices and edges to it
         spinEdgeColor = Color.HSVToRGB(hue/100,1f,0.7f,true);
         spinVertexColor = Color.HSVToRGB(hue/100,1f,0.5f,true);
 
@@ -148,7 +147,7 @@ public class RGBHyperMaze : MonoBehaviour {
         for(int i = 0; i < 12; i++) { possibleRots.Add(i); }
         for(int i = 0; i < 5; i++)
         {
-            int nextRot = rnd.Next(possibleRots.Count);
+            int nextRot = UnityEngine.Random.Range(0, possibleRots.Count);
             rotations[i] = possibleRots[nextRot];
             possibleRots.RemoveAt(nextRot);
         }
@@ -158,7 +157,7 @@ public class RGBHyperMaze : MonoBehaviour {
         for (int i = 0; i < passable.Count; i++) { passableTranslated.Add(edgeTranslator(passable[i])); } //translate maze output into an array 
         while(passableTranslated.Count < 20)
         {
-            int nextEdge = rnd.Next(32);
+            int nextEdge = UnityEngine.Random.Range(0, 32);
             bool add = true;
             for (int i = 0; i < passableTranslated.Count; i++)
             {
@@ -178,7 +177,7 @@ public class RGBHyperMaze : MonoBehaviour {
         List<int> possibleAppRots = new List<int>();                //choose a random order to apply the rotations, with no duplicates
         for(int i = 0; i < 5; i++) { possibleAppRots.Add(i); }
         for(int i = 0; i < 4; i++){
-            int nextRot = rnd.Next(possibleAppRots.Count);
+            int nextRot = UnityEngine.Random.Range(0, possibleAppRots.Count);
             appliedRotations[i] = possibleAppRots[nextRot];
             possibleAppRots.RemoveAt(nextRot);
         }
@@ -207,7 +206,7 @@ public class RGBHyperMaze : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
         if(moduleSolved && solveProg < 300){ //runs the solve anim
             solveAnim(solveProg);
             solveProg += 1;
@@ -560,7 +559,7 @@ public class RGBHyperMaze : MonoBehaviour {
             }
             if(neighbors.Count > 0)
             {
-                int id = rnd.Next(neighbors.Count());
+                int id = UnityEngine.Random.Range(0, neighbors.Count());
                 int next_x = neighbors[id][0];
                 int next_y = neighbors[id][1];
                 int next_z = neighbors[id][2];
@@ -661,9 +660,9 @@ public class RGBHyperMaze : MonoBehaviour {
             int[,] edgeRNGPuzzle = new int[32,3];
             for(int i = 0; i < 16; i++)
             {
-                vertRNGPuzzle[i,0] = rnd.Next(2);
-                vertRNGPuzzle[i,1] = rnd.Next(2);
-                vertRNGPuzzle[i,2] = rnd.Next(2);
+                vertRNGPuzzle[i,0] = UnityEngine.Random.Range(0, 2);
+                vertRNGPuzzle[i,1] = UnityEngine.Random.Range(0, 2);
+                vertRNGPuzzle[i,2] = UnityEngine.Random.Range(0, 2);
             }
             for(int i = 0; i < 32; i++)
             {
@@ -684,7 +683,7 @@ public class RGBHyperMaze : MonoBehaviour {
                         }
                         else
                         {
-                            int rndColInt = possibleCol[rnd.Next(possibleCol.Count)];
+                            int rndColInt = possibleCol[UnityEngine.Random.Range(0, possibleCol.Count)];
                             edgeRNGPuzzle[i,rndColInt] = 1;
                         }
                         break;
@@ -702,7 +701,7 @@ public class RGBHyperMaze : MonoBehaviour {
                         }
                         else
                         {
-                            int rndColInt = possibleCol[rnd.Next(possibleCol.Count)];
+                            int rndColInt = possibleCol[UnityEngine.Random.Range(0, possibleCol.Count)];
                             edgeRNGPuzzle[i,rndColInt] = 1;
                         }
                         break;
@@ -720,7 +719,7 @@ public class RGBHyperMaze : MonoBehaviour {
                         }
                         else
                         {
-                            int rndColInt = possibleCol[rnd.Next(possibleCol.Count)];
+                            int rndColInt = possibleCol[UnityEngine.Random.Range(0, possibleCol.Count)];
                             edgeRNGPuzzle[i,rndColInt] = 1;
                         }
                         break;
@@ -738,7 +737,7 @@ public class RGBHyperMaze : MonoBehaviour {
                         }
                         else
                         {
-                            int rndColInt = possibleCol[rnd.Next(possibleCol.Count)];
+                            int rndColInt = possibleCol[UnityEngine.Random.Range(0, possibleCol.Count)];
                             edgeRNGPuzzle[i,rndColInt] = 1;
                         }
                         break;
@@ -1010,7 +1009,7 @@ public class RGBHyperMaze : MonoBehaviour {
 
     public void solveAnim(int progress) //Runs the solve anim based on the 4D conversion stuff.
     {
-        int[] randomDisplay = new int[4] {rnd.Next(5)+1,rnd.Next(5)+1,rnd.Next(5)+1,rnd.Next(5)+1};
+        int[] randomDisplay = new int[4] { UnityEngine.Random.Range(0, 5)+1, UnityEngine.Random.Range(0, 5)+1, UnityEngine.Random.Range(0, 5)+1, UnityEngine.Random.Range(0, 5)+1};
         verticesTf[goalVertex].localScale = new Vector3(0.011f,0.011f,0.011f);
         float subProg = ((float)progress%60)/60;
         Vector4 newCoords = new Vector4(0f,0f,0f,0f);
