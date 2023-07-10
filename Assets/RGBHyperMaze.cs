@@ -1134,19 +1134,18 @@ public class RGBHyperMaze : MonoBehaviour {
     {
         if (!moduleSolved)
         {
-            while (revertProg != 0) yield return true;
+            if (revert)
+                while (displayText.text != "----") yield return true;
             while (transitionProg != 0) yield return true;
             if (!start)
             {
                 display.OnInteract();
-                while (transitionProg == 0) yield return true;
-                while (transitionProg != 0) yield return true;
+                while (displayText.text == "----") yield return true;
             }
             if (!visualState)
             {
                 display.OnInteract();
-                while (transitionProg == 0) yield return true;
-                while (transitionProg != 0) yield return true;
+                while (!visualState) yield return true;
             }
             var q = new Queue<int>();
             var allMoves = new List<Movement>();
