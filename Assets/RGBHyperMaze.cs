@@ -352,7 +352,7 @@ public class RGBHyperMaze : MonoBehaviour {
     void PressDisplay() //toggles/progresses stages
     {
         display.AddInteractionPunch(1f);
-        audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, display.transform);
 
         if (!start)
         {
@@ -369,7 +369,7 @@ public class RGBHyperMaze : MonoBehaviour {
             string vertexName = "";
             string edgeName = "";
             verticesSel[id].AddInteractionPunch(0.2f);
-            audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+            audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, verticesSel[id].transform);
             if(visualState && inputState)                   //most of this stuff is just logging but more importantly it moves the current vertex if applicable, and strikes if applicable
             {
                 if(fDCoords[id].x == -1) { vertexName += "left-"; } else { vertexName += "right-"; }
@@ -1128,17 +1128,78 @@ public class RGBHyperMaze : MonoBehaviour {
             yield return new[] { verticesSel[vertexIx] };
         }
     }
-    IEnumerator TwitchHandleForcedSolve() //Literally just enters the solve animation. Lol.
+    
+
+    IEnumerator TwitchHandleForcedSolve() //Handles autosolves on TP
     {
-        for(int i = 0; i < 32; i++)
+        if (!moduleSolved)
         {
-            edgesCol[i].material.color = Color.HSVToRGB(0f,0f,0.6f);
+            while (revertProg != 0) yield return true;
+            while (transitionProg != 0) yield return true;
+            if (!start)
+            {
+                display.OnInteract();
+                while (transitionProg == 0) yield return true;
+                while (transitionProg != 0) yield return true;
+            }
+            if (!visualState)
+            {
+                display.OnInteract();
+                while (transitionProg == 0) yield return true;
+                while (transitionProg != 0) yield return true;
+            }
+            var q = new Queue<int>();
+            var allMoves = new List<Movement>();
+            var startPoint = currentVertex;
+            var target = goalVertex;
+            q.Enqueue(startPoint);
+            while (q.Count > 0)
+            {
+                var next = q.Dequeue();
+                if (next == target)
+                    goto readyToSubmit;
+                List<int> allValids = new List<int>();
+                for (int id = 0; id < 16; id++)
+                {
+                    for (int i = 0; i < 32; i++)
+                    {
+                        if (((id == edgeLeft[i] && next == edgeRight[i]) || (id == edgeRight[i] && next == edgeLeft[i])) && !rotationLogic[i, 4])
+                        {
+                            allValids.Add(id);
+                            break;
+                        }
+                    }
+                }
+                for (int i = 0; i < allValids.Count; i++)
+                {
+                    if (!allMoves.Any(x => x.start == allValids[i]))
+                    {
+                        q.Enqueue(allValids[i]);
+                        allMoves.Add(new Movement { start = next, end = allValids[i] });
+                    }
+                }
+            }
+            throw new InvalidOperationException("There is a bug in RGB Hypermaze's TP autosolve handler.");
+            readyToSubmit:
+            var lastMove = allMoves.First(x => x.end == target);
+            var relevantMoves = new List<Movement> { lastMove };
+            while (lastMove.start != startPoint)
+            {
+                lastMove = allMoves.First(x => x.end == lastMove.start);
+                relevantMoves.Add(lastMove);
+            }
+            for (int i = 0; i < relevantMoves.Count; i++)
+            {
+                verticesSel[relevantMoves[relevantMoves.Count - 1 - i].end].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
         }
-        verticesCol[goalVertex].material.color = new Color(0f,0.8f,0f);
-        start = true;
-        moduleSolved = true;
-        inputState = true;
-        visualState = true;
-        yield return true;
+        while (solveProg != 300) yield return true;
+    }
+
+    class Movement //Movement class used in the autosolve handler
+    {
+        public int start;
+        public int end;
     }
 }
